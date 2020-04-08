@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,15 +33,14 @@ public abstract class BaseFragment extends DaggerFragment implements Responsible
     @Inject
     RequestManager glide;
 
-    @BindView(R.id.photo_recyclerview)
-    protected RecyclerView recyclerView;
-
     private Unbinder unbinder;
 
+    @LayoutRes
+    protected abstract int layoutRes();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_photo, container, false);
+        View root = inflater.inflate(layoutRes(), container, false);
         unbinder = ButterKnife.bind(this, root);
         return root;
     }

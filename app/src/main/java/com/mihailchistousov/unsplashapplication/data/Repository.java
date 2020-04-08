@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 
 @Singleton
 public class Repository {
@@ -26,7 +27,7 @@ public class Repository {
     }
 
     //Retrofit method`s
-    public Flowable<List<Photo>> get_photos_from_API() {
+    public Observable<List<Photo>> get_photos_from_API() {
         return retrofit.get_photos_from_API();
     }
 

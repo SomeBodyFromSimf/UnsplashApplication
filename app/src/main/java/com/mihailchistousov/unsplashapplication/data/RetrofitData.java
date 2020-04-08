@@ -1,5 +1,7 @@
 package com.mihailchistousov.unsplashapplication.data;
 
+import android.util.Log;
+
 import com.mihailchistousov.unsplashapplication.data.Network.UnsplashAPI;
 import com.mihailchistousov.unsplashapplication.model.Photo;
 
@@ -8,6 +10,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.reactivex.Flowable;
+import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 
 public class RetrofitData {
@@ -20,7 +23,7 @@ public class RetrofitData {
         this.API = API;
     }
 
-    public Flowable<List<Photo>> get_photos_from_API() {
+    public Observable<List<Photo>> get_photos_from_API() {
         return API.getPhotos(1,KEY)
                 .mergeWith(API.getPhotos(2,KEY))
                 .subscribeOn(Schedulers.io());

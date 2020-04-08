@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.mihailchistousov.unsplashapplication.R;
 import com.mihailchistousov.unsplashapplication.base.BaseFragment;
 import com.mihailchistousov.unsplashapplication.base.Responsible_interfaces.ResponsibleFav;
 import com.mihailchistousov.unsplashapplication.model.Photo;
@@ -17,6 +19,8 @@ import com.mihailchistousov.unsplashapplication.model.Photo;
 import java.util.List;
 
 import javax.inject.Inject;
+
+import butterknife.BindView;
 
 public class FavFragment extends BaseFragment implements ResponsibleFav {
 
@@ -29,6 +33,14 @@ public class FavFragment extends BaseFragment implements ResponsibleFav {
     @Inject
     Intent intent;
     private FavViewModel favViewModel;
+
+    @BindView(R.id.fav_recyclerview)
+    protected RecyclerView recyclerView;
+
+    @Override
+    protected int layoutRes() {
+        return R.layout.fragment_fav;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

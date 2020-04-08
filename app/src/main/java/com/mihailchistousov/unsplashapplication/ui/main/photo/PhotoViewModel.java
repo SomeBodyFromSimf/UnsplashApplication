@@ -1,6 +1,8 @@
 package com.mihailchistousov.unsplashapplication.ui.main.photo;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.LiveDataReactiveStreams;
@@ -13,11 +15,14 @@ import com.mihailchistousov.unsplashapplication.data.Repository;
 import com.mihailchistousov.unsplashapplication.model.Photo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class PhotoViewModel extends ViewModel {
 
@@ -31,29 +36,35 @@ public class PhotoViewModel extends ViewModel {
         this.repository = repository;
     }
 
+    @SuppressLint("CheckResult")
     public void get_list_photos() {
+        List<Photo> listPhotos = new ArrayList<>();
         photos.setValue(Resource.loading((List<Photo>)null));
-
-        final LiveData<Resource<List<Photo>>> source = LiveDataReactiveStreams.fromPublisher(
-                repository.get_photos_from_API()
-                        .onErrorReturn(throwable -> {
-                            Photo photo = new Photo();
-                            photo.setId("-1");
-                            List<Photo> photos = new ArrayList<>();
-                            photos.add(photo);
-                            return photos;
-                        })
-                        .map(photos -> {
-                            if(photos.get(0).getId() == "-1") {
-                                return Resource.error(context.getResources().getString(R.string.error_load_photos),null);
-                            }
-                            return Resource.success(photos);
-                        })
-        );
-        photos.addSource(source, resource_photos -> {
-            photos.setValue(resource_photos);
-            photos.removeSource(source);
-        });
+        repository.get_photos_from_API()
+                .onErrorReturn(throwable -> {
+                    Photo photo = new Photo();
+                    photo.setId("-1");
+                    List<Photo> photos = new ArrayList<>();
+                    photos.add(photo);
+                    return photos;
+                })
+                .map(photos -> {
+                    if(photos.get(0).getId() == "-1") {
+                        return Resource.error(context.getResources().getString(R.string.error_load_photos),null);
+                    }
+                    return Resource.success(photos);
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnComplete(() -> {
+                    if(!listPhotos.isEmpty()) {
+                        photos.setValue(Resource.success(listPhotos));
+                    }
+                    else photos.setValue(Resource.error(context.getResources().getString(R.string.error_load_photos),null));
+                })
+                .subscribe(resource -> {
+                    if(resource.data != null)
+                        listPhotos.addAll((Collection<? extends Photo>) resource.data);
+                });
     }
 
     public LiveData<Resource<List<Photo>>> observe_photos() {

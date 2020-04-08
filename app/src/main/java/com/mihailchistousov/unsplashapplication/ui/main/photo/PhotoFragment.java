@@ -3,6 +3,7 @@ package com.mihailchistousov.unsplashapplication.ui.main.photo;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.mihailchistousov.unsplashapplication.R;
@@ -21,6 +23,7 @@ import com.mihailchistousov.unsplashapplication.model.Photo;
 import javax.inject.Inject;
 
 import butterknife.BindView;
+import io.reactivex.disposables.CompositeDisposable;
 
 public class PhotoFragment extends BaseFragment implements ResponsiblePhoto {
 
@@ -36,6 +39,14 @@ public class PhotoFragment extends BaseFragment implements ResponsiblePhoto {
 
     @BindView(R.id.swipe_container)
     SwipeRefreshLayout swipe_container;
+
+    @BindView(R.id.photo_recyclerview)
+    protected RecyclerView recyclerView;
+
+    @Override
+    protected int layoutRes() {
+        return R.layout.fragment_photo;
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -89,11 +100,15 @@ public class PhotoFragment extends BaseFragment implements ResponsiblePhoto {
     @SuppressLint("CheckResult")
     @Override
     public void checkInDB(PhotoAdapter.ViewHolder viewHolder) {
-        photoViewModel.find_photo_in_db(viewHolder.getPhoto())
+        CompositeDisposable composite = new CompositeDisposable();
+
+        composite.add(photoViewModel.find_photo_in_db(viewHolder.getPhoto())
                 .subscribe(bool -> {
                     viewHolder.setLike(bool);
                     viewHolder.set_like_image();
-                });
+                    composite.dispose();
+                }));
+
     }
 
 
